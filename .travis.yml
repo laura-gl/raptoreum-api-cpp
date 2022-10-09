@@ -19,7 +19,7 @@ install:
   - cd build
   - cmake -DHTTP_SERVER=NO ..
   - make && sudo make install
-  - cd ../../bitcoin-api-cpp
+  - cd ../../raptoreum-api-cpp
 
 before_script:
   - mkdir build

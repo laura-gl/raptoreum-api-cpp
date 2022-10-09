@@ -3,20 +3,20 @@
 //#define VERBOSE
 
 #include <boost/test/unit_test.hpp>
-#include <bitcoinapi/bitcoinapi.h>
-#include <bitcoinapi/exception.h>
+#include <raptoreumapi/raptoreumapi.h>
+#include <raptoreumapi/exception.h>
 
 #define NO_THROW(METHOD)                    \
   try {                                     \
     (METHOD);                               \
-  } catch (BitcoinException& e) {           \
+  } catch (RaptoreumException& e) {           \
     BOOST_REQUIRE_MESSAGE(false, e.what()); \
   }
 
 #define NO_THROW_EXCEPT(METHOD, EXCEPTION)        \
   try {                                           \
     (METHOD);                                     \
-  } catch (BitcoinException& e) {                 \
+  } catch (RaptoreumException& e) {                 \
     std::stringstream err;                                        \
     err << "Error (" << e.getCode() << "): " << e.getMessage();   \
     BOOST_REQUIRE_MESSAGE(e.getCode() == (EXCEPTION), err.str()); \
@@ -31,7 +31,7 @@ struct MyFixture {
 	std::string address;
 	int port;
 
-	BitcoinAPI btc;
+	RaptoreumAPI btc;
 
      MyFixture()
      : username("Ulysses"),

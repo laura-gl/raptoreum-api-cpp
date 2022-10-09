@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT(libbitcoin-api-cpp)
+PROJECT(libraptoreum-api-cpp)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -13,7 +13,7 @@ SET(PATCH_VERSION 0)
 SET(SO_VERSION    0)
 
 # Add source directory
-ADD_SUBDIRECTORY(src/bitcoinapi)
+ADD_SUBDIRECTORY(src/raptoreumapi)
 
 FIND_PACKAGE(Boost COMPONENTS unit_test_framework)
 IF(Boost_FOUND)
@@ -34,7 +34,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
-SET(CPACK_PACKAGE_DESCRIPTION "C++ interface for communication with Bitcoin Wallet.")
+SET(CPACK_PACKAGE_DESCRIPTION "C++ interface for communication with Raptoreum Wallet.")
 SET(CPACK_PACKAGE_VENDOR "Krzysztof Okupski")
 SET(CPACK_PACKAGE_CONTACT "Krzysztof Okupski <k.okupski@gmail.com>")
 SET(CPACK_PACKAGE_VERSION_MAJOR "${MAJOR_VERSION}")
@@ -45,7 +45,7 @@ SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${MAJOR_VERSION}.${MIN
 
 SET(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
 
-SET(CPACK_COMPONENTS_ALL bitcoinapi)
+SET(CPACK_COMPONENTS_ALL raptoreumapi)
 INCLUDE(CPack)
 
 # Uninstall target

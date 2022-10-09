@@ -7,8 +7,8 @@
  * Type definitions for the JSON-RPC C++ interface.
  */
 
-#ifndef BITCOIN_API_TYPES_H
-#define BITCOIN_API_TYPES_H
+#ifndef RAPTOREUM_API_TYPES_H
+#define RAPTOREUM_API_TYPES_H
 
 #include <string>
 #include <vector>
