@@ -32,7 +32,7 @@ using std::vector;
 
 
 RaptoreumAPI::RaptoreumAPI(const string& user, const string& password, const string& host, int port, int httpTimeout)
-: httpClient(new HttpClient("http://" + user + ":" + password + "@" + host + ":" + IntegerToString(port))),
+: httpClient(new HttpClient("https://" + user + ":" + password + "@" + host + ":" + IntegerToString(port))),
   client(new Client(*httpClient, JSONRPC_CLIENT_V1))
 {
     httpClient->SetTimeout(httpTimeout);
