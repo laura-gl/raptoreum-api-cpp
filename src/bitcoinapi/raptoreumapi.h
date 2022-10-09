@@ -36,14 +36,16 @@ public:
 
 
     /* === Node functions === */
+    /*
     void addnode(const std::string &node, const std::string& command);
     std::vector<nodeinfo_t> getaddednodeinfo(bool dns);
     std::vector<nodeinfo_t> getaddednodeinfo(bool dns, const std::string& node);
     std::vector<peerinfo_t> getpeerinfo();
     int getconnectioncount();
-
+    */
 
     /* === Wallet functions === */
+    /*
     void backupwallet(const std::string& destination);
     std::string encryptwallet(const std::string& passphrase);
     void walletlock();
@@ -71,10 +73,13 @@ public:
     getinfo_t getinfo();
     void stop();
 
-
+    */
     /* === Accounting === */
-    double getbalance();
-    double getbalance(const std::string& account, int minconf = 1, bool includewatchonly = false);
+    //double getaddressbalance();
+    double getaddressbalance(const std::string& account);
+
+    std::vector<transactioninfo_t> getaddresstxids(const std::string& account, int count = 10, int from = 0);
+    /*
     double getunconfirmedbalance();
 
     double getreceivedbyaccount(const std::string& account, int minconf = 1);
@@ -115,10 +120,12 @@ public:
     std::vector<unspenttxout_t> listunspent(int minconf = 1, int maxconf = 999999);
     std::vector<txout_t> listlockunspent();
     bool lockunspent(bool unlock, const std::vector<txout_t>& outputs);
-
+    */
 
 
     /* === Mining functions === */
+    mininginfo_t getmininginfo();
+    /*
     std::string getbestblockhash();
     std::string getblockhash(int blocknumber);
     blockinfo_t getblock(const std::string& blockhash);
@@ -129,15 +136,17 @@ public:
     double getdifficulty();
     int gethashespersec();
 
-    mininginfo_t getmininginfo();
+    
     workdata_t getwork();
     bool getwork(const std::string& data);
 
     txsinceblock_t listsinceblock(const std::string& blockhash = "", int target_confirmations = 1);
-
+    */
 
     /* === Low level calls === */
     getrawtransaction_t getrawtransaction(const std::string& txid, int verbose = 0);
+
+    /*
     decodescript_t decodescript(const std::string& hexString);
     decoderawtransaction_t decoderawtransaction(const std::string& hexString);
     std::string sendrawtransaction(const std::string& hexString, bool highFee);
@@ -150,6 +159,7 @@ public:
 
     std::vector<std::string> getrawmempool();
     std::string getrawchangeaddress();
+    */
 
 };
 

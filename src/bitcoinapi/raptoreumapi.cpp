@@ -108,6 +108,7 @@ void RaptoreumAPI::stop() {
 }
 
 /* === Node functions === */
+/*
 void RaptoreumAPI::addnode(const string& node, const string& comm) {
 
 	if (!(comm == "add" || comm == "remove" || comm == "onetry")) {
@@ -228,8 +229,9 @@ vector<peerinfo_t> RaptoreumAPI::getpeerinfo() {
 
 	return ret;
 }
-
+*/
 /* === Wallet functions === */
+/*
 void RaptoreumAPI::backupwallet(const string& destination) {
 	string command = "backupwallet";
 	Value params;
@@ -417,22 +419,62 @@ bool RaptoreumAPI::verifymessage(const std::string& raptoreumaddress, const std:
 	result = sendcommand(command, params);
 	return result.asBool();
 }
+*/
 
 /* === Accounting === */
+
+double RaptoreumAPI::getaddressbalance(const string& account) {
+	string command = "getaddressbalance";
+	Value params, result;
+	params.append(account);
+	result = sendcommand(command, params);
+
+	return result["balance"].asDouble();
+}
+
+vector<transactioninfo_t> RaptoreumAPI::getaddresstxids(const string& account, int count, int from) {
+	string command = "getaddresstxids";
+	Value params, result;
+	vector<transactioninfo_t> ret;
+
+	params.append(account);
+	params.append(count);
+	params.append(from);
+	result = sendcommand(command, params);
+
+	for (ValueIterator it = result.begin(); it != result.end(); it++) {
+		Value val = (*it);
+		transactioninfo_t tmp;
+
+		tmp.account = val["account"].asString();
+		tmp.address = val["address"].asString();
+		tmp.category = val["category"].asString();
+		tmp.amount = val["amount"].asDouble();
+		tmp.confirmations = val["confirmations"].asInt();
+		tmp.blockhash = val["blockhash"].asString();
+		tmp.blockindex = val["blockindex"].asInt();
+		tmp.blocktime = val["blocktime"].asInt();
+		tmp.txid = val["txid"].asString();
+
+		for (ValueIterator it2 = val["walletconflicts"].begin();
+				it2 != val["walletconflicts"].end(); it2++) {
+			tmp.walletconflicts.push_back((*it2).asString());
+		}
+
+		tmp.time = val["time"].asInt();
+		tmp.timereceived = val["timereceived"].asInt();
+
+		ret.push_back(tmp);
+	}
+
+	return ret;
+}
+
+/*
+
 double RaptoreumAPI::getbalance() {
 	string command = "getbalance";
 	Value params, result;
-	result = sendcommand(command, params);
-
-	return result.asDouble();
-}
-
-double RaptoreumAPI::getbalance(const string& account, int minconf, bool includewatchonly) {
-	string command = "getbalance";
-	Value params, result;
-	params.append(account);
-	params.append(minconf);
-	params.append(includewatchonly);
 	result = sendcommand(command, params);
 
 	return result.asDouble();
@@ -563,44 +605,6 @@ vector<transactioninfo_t> RaptoreumAPI::listtransactions() {
 	Value params, result;
 	vector<transactioninfo_t> ret;
 
-	result = sendcommand(command, params);
-
-	for (ValueIterator it = result.begin(); it != result.end(); it++) {
-		Value val = (*it);
-		transactioninfo_t tmp;
-
-		tmp.account = val["account"].asString();
-		tmp.address = val["address"].asString();
-		tmp.category = val["category"].asString();
-		tmp.amount = val["amount"].asDouble();
-		tmp.confirmations = val["confirmations"].asInt();
-		tmp.blockhash = val["blockhash"].asString();
-		tmp.blockindex = val["blockindex"].asInt();
-		tmp.blocktime = val["blocktime"].asInt();
-		tmp.txid = val["txid"].asString();
-
-		for (ValueIterator it2 = val["walletconflicts"].begin();
-				it2 != val["walletconflicts"].end(); it2++) {
-			tmp.walletconflicts.push_back((*it2).asString());
-		}
-
-		tmp.time = val["time"].asInt();
-		tmp.timereceived = val["timereceived"].asInt();
-
-		ret.push_back(tmp);
-	}
-
-	return ret;
-}
-
-vector<transactioninfo_t> RaptoreumAPI::listtransactions(const string& account, int count, int from) {
-	string command = "listtransactions";
-	Value params, result;
-	vector<transactioninfo_t> ret;
-
-	params.append(account);
-	params.append(count);
-	params.append(from);
 	result = sendcommand(command, params);
 
 	for (ValueIterator it = result.begin(); it != result.end(); it++) {
@@ -899,8 +903,33 @@ bool RaptoreumAPI::lockunspent(bool unlock, const vector<txout_t>& outputs) {
 
 	return result.asBool();
 }
+*/
 
 /* === Mining functions === */
+
+mininginfo_t RaptoreumAPI::getmininginfo() {
+	string command = "getmininginfo";
+	Value params, result;
+	mininginfo_t ret;
+
+	result = sendcommand(command, params);
+
+	ret.blocks = result["blocks"].asInt();
+	ret.currentblocksize = result["currentblocksize"].asInt();
+	ret.currentblocktx = result["currentblocktx"].asInt();
+	ret.difficulty = result["difficulty"].asDouble();
+	ret.errors = result["errors"].asString();
+	ret.genproclimit = result["genproclimit"].asInt();
+	ret.networkhashps = result["networkhashps"].asDouble();
+	ret.pooledtx = result["pooledtx"].asInt();
+	ret.testnet = result["testnet"].asBool();
+	ret.generate = result["generate"].asBool();
+	ret.hashespersec = result["hashespersec"].asInt();
+
+	return ret;
+}
+
+/*
 string RaptoreumAPI::getbestblockhash() {
 	string command = "getbestblockhash";
 	Value params, result;
@@ -980,29 +1009,6 @@ double RaptoreumAPI::getdifficulty() {
 	return result.asDouble();
 }
 
-mininginfo_t RaptoreumAPI::getmininginfo() {
-	string command = "getmininginfo";
-	Value params, result;
-	mininginfo_t ret;
-
-	result = sendcommand(command, params);
-
-	ret.blocks = result["blocks"].asInt();
-	ret.currentblocksize = result["currentblocksize"].asInt();
-	ret.currentblocktx = result["currentblocktx"].asInt();
-	ret.difficulty = result["difficulty"].asDouble();
-	ret.errors = result["errors"].asString();
-	ret.genproclimit = result["genproclimit"].asInt();
-	ret.networkhashps = result["networkhashps"].asDouble();
-	ret.pooledtx = result["pooledtx"].asInt();
-	ret.testnet = result["testnet"].asBool();
-	ret.generate = result["generate"].asBool();
-	ret.hashespersec = result["hashespersec"].asInt();
-
-	return ret;
-}
-
-
 txsinceblock_t RaptoreumAPI::listsinceblock(const string& blockhash, int target_confirmations) {
 	string command = "listsinceblock";
 	Value params, result;
@@ -1042,7 +1048,7 @@ txsinceblock_t RaptoreumAPI::listsinceblock(const string& blockhash, int target_
 	return ret;
 }
 
-
+*/
 /* === Raw transaction calls === */
 getrawtransaction_t RaptoreumAPI::getrawtransaction(const string& txid, int verbose) {
 	string command = "getrawtransaction";
@@ -1097,7 +1103,7 @@ getrawtransaction_t RaptoreumAPI::getrawtransaction(const string& txid, int verb
 
 	return ret;
 }
-
+/*
 decodescript_t RaptoreumAPI::decodescript(const std::string& hexString) {
 	string command = "decodescript";
 	Value params, result;
@@ -1361,3 +1367,4 @@ utxosetinfo_t RaptoreumAPI::gettxoutsetinfo() {
 
 	return ret;
 }
+*/
