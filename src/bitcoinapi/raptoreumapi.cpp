@@ -107,6 +107,139 @@ void RaptoreumAPI::stop() {
 	sendcommand(command, params);
 }
 
+/* === Accounting === */
+
+double RaptoreumAPI::getaddressbalance(const string& account) {
+	string command = "getaddressbalance";
+	Value params, result;
+	params.append(account);
+	result = sendcommand(command, params);
+
+	return result["balance"].asDouble();
+}
+
+vector<transactioninfo_t> RaptoreumAPI::getaddresstxids(const string& account, int count, int from) {
+	string command = "getaddresstxids";
+	Value params, result;
+	vector<transactioninfo_t> ret;
+
+	params.append(account);
+	params.append(count);
+	params.append(from);
+	result = sendcommand(command, params);
+
+	for (ValueIterator it = result.begin(); it != result.end(); it++) {
+		Value val = (*it);
+		transactioninfo_t tmp;
+
+		tmp.account = val["account"].asString();
+		tmp.address = val["address"].asString();
+		tmp.category = val["category"].asString();
+		tmp.amount = val["amount"].asDouble();
+		tmp.confirmations = val["confirmations"].asInt();
+		tmp.blockhash = val["blockhash"].asString();
+		tmp.blockindex = val["blockindex"].asInt();
+		tmp.blocktime = val["blocktime"].asInt();
+		tmp.txid = val["txid"].asString();
+
+		for (ValueIterator it2 = val["walletconflicts"].begin();
+				it2 != val["walletconflicts"].end(); it2++) {
+			tmp.walletconflicts.push_back((*it2).asString());
+		}
+
+		tmp.time = val["time"].asInt();
+		tmp.timereceived = val["timereceived"].asInt();
+
+		ret.push_back(tmp);
+	}
+
+	return ret;
+}
+
+/* === Mining functions === */
+
+mininginfo_t RaptoreumAPI::getmininginfo() {
+	string command = "getmininginfo";
+	Value params, result;
+	mininginfo_t ret;
+
+	result = sendcommand(command, params);
+
+	ret.blocks = result["blocks"].asInt();
+	ret.currentblocksize = result["currentblocksize"].asInt();
+	ret.currentblocktx = result["currentblocktx"].asInt();
+	ret.difficulty = result["difficulty"].asDouble();
+	ret.errors = result["errors"].asString();
+	ret.genproclimit = result["genproclimit"].asInt();
+	ret.networkhashps = result["networkhashps"].asDouble();
+	ret.pooledtx = result["pooledtx"].asInt();
+	ret.testnet = result["testnet"].asBool();
+	ret.generate = result["generate"].asBool();
+	ret.hashespersec = result["hashespersec"].asInt();
+
+	return ret;
+}
+
+/* === Raw transaction calls === */
+getrawtransaction_t RaptoreumAPI::getrawtransaction(const string& txid, int verbose) {
+	string command = "getrawtransaction";
+	Value params, result;
+	getrawtransaction_t ret;
+
+	params.append(txid);
+	params.append(verbose);
+	result = sendcommand(command, params);
+
+	ret.hex = ((verbose == 0) ? result.asString() : result["hex"].asString());
+
+	if(verbose != 0){
+		ret.txid = result["txid"].asString();
+		ret.version = result["version"].asInt();
+		ret.locktime = result["locktime"].asInt();
+		for (ValueIterator it = result["vin"].begin(); it != result["vin"].end();
+				it++) {
+			Value val = (*it);
+			vin_t input;
+			input.txid = val["txid"].asString();
+			input.n = val["vout"].asUInt();
+			input.scriptSig.assm = val["scriptSig"]["asm"].asString();
+			input.scriptSig.hex = val["scriptSig"]["hex"].asString();
+			input.sequence = val["sequence"].asUInt();
+			ret.vin.push_back(input);
+		}
+
+		for (ValueIterator it = result["vout"].begin(); it != result["vout"].end();
+				it++) {
+			Value val = (*it);
+			vout_t output;
+
+			output.value = val["value"].asDouble();
+			output.n = val["n"].asUInt();
+			output.scriptPubKey.assm = val["scriptPubKey"]["asm"].asString();
+			output.scriptPubKey.hex = val["scriptPubKey"]["hex"].asString();
+			output.scriptPubKey.reqSigs = val["scriptPubKey"]["reqSigs"].asInt();
+
+			output.scriptPubKey.type = val["scriptPubKey"]["type"].asString();
+			for(ValueIterator it2 = val["scriptPubKey"]["addresses"].begin(); it2 != val["scriptPubKey"]["addresses"].end(); it2++){
+				output.scriptPubKey.addresses.push_back((*it2).asString());
+			}
+
+			ret.vout.push_back(output);
+		}
+		ret.blockhash = result["blockhash"].asString();
+		ret.confirmations = result["confirmations"].asUInt();
+		ret.time = result["time"].asUInt();
+		ret.blocktime = result["blocktime"].asUInt();
+	}
+
+	return ret;
+}
+
+
+
+
+
+
 /* === Node functions === */
 /*
 void RaptoreumAPI::addnode(const string& node, const string& comm) {
@@ -421,54 +554,7 @@ bool RaptoreumAPI::verifymessage(const std::string& raptoreumaddress, const std:
 }
 */
 
-/* === Accounting === */
 
-double RaptoreumAPI::getaddressbalance(const string& account) {
-	string command = "getaddressbalance";
-	Value params, result;
-	params.append(account);
-	result = sendcommand(command, params);
-
-	return result["balance"].asDouble();
-}
-
-vector<transactioninfo_t> RaptoreumAPI::getaddresstxids(const string& account, int count, int from) {
-	string command = "getaddresstxids";
-	Value params, result;
-	vector<transactioninfo_t> ret;
-
-	params.append(account);
-	params.append(count);
-	params.append(from);
-	result = sendcommand(command, params);
-
-	for (ValueIterator it = result.begin(); it != result.end(); it++) {
-		Value val = (*it);
-		transactioninfo_t tmp;
-
-		tmp.account = val["account"].asString();
-		tmp.address = val["address"].asString();
-		tmp.category = val["category"].asString();
-		tmp.amount = val["amount"].asDouble();
-		tmp.confirmations = val["confirmations"].asInt();
-		tmp.blockhash = val["blockhash"].asString();
-		tmp.blockindex = val["blockindex"].asInt();
-		tmp.blocktime = val["blocktime"].asInt();
-		tmp.txid = val["txid"].asString();
-
-		for (ValueIterator it2 = val["walletconflicts"].begin();
-				it2 != val["walletconflicts"].end(); it2++) {
-			tmp.walletconflicts.push_back((*it2).asString());
-		}
-
-		tmp.time = val["time"].asInt();
-		tmp.timereceived = val["timereceived"].asInt();
-
-		ret.push_back(tmp);
-	}
-
-	return ret;
-}
 
 /*
 
@@ -905,29 +991,7 @@ bool RaptoreumAPI::lockunspent(bool unlock, const vector<txout_t>& outputs) {
 }
 */
 
-/* === Mining functions === */
 
-mininginfo_t RaptoreumAPI::getmininginfo() {
-	string command = "getmininginfo";
-	Value params, result;
-	mininginfo_t ret;
-
-	result = sendcommand(command, params);
-
-	ret.blocks = result["blocks"].asInt();
-	ret.currentblocksize = result["currentblocksize"].asInt();
-	ret.currentblocktx = result["currentblocktx"].asInt();
-	ret.difficulty = result["difficulty"].asDouble();
-	ret.errors = result["errors"].asString();
-	ret.genproclimit = result["genproclimit"].asInt();
-	ret.networkhashps = result["networkhashps"].asDouble();
-	ret.pooledtx = result["pooledtx"].asInt();
-	ret.testnet = result["testnet"].asBool();
-	ret.generate = result["generate"].asBool();
-	ret.hashespersec = result["hashespersec"].asInt();
-
-	return ret;
-}
 
 /*
 string RaptoreumAPI::getbestblockhash() {
@@ -1049,60 +1113,7 @@ txsinceblock_t RaptoreumAPI::listsinceblock(const string& blockhash, int target_
 }
 
 */
-/* === Raw transaction calls === */
-getrawtransaction_t RaptoreumAPI::getrawtransaction(const string& txid, int verbose) {
-	string command = "getrawtransaction";
-	Value params, result;
-	getrawtransaction_t ret;
 
-	params.append(txid);
-	params.append(verbose);
-	result = sendcommand(command, params);
-
-	ret.hex = ((verbose == 0) ? result.asString() : result["hex"].asString());
-
-	if(verbose != 0){
-		ret.txid = result["txid"].asString();
-		ret.version = result["version"].asInt();
-		ret.locktime = result["locktime"].asInt();
-		for (ValueIterator it = result["vin"].begin(); it != result["vin"].end();
-				it++) {
-			Value val = (*it);
-			vin_t input;
-			input.txid = val["txid"].asString();
-			input.n = val["vout"].asUInt();
-			input.scriptSig.assm = val["scriptSig"]["asm"].asString();
-			input.scriptSig.hex = val["scriptSig"]["hex"].asString();
-			input.sequence = val["sequence"].asUInt();
-			ret.vin.push_back(input);
-		}
-
-		for (ValueIterator it = result["vout"].begin(); it != result["vout"].end();
-				it++) {
-			Value val = (*it);
-			vout_t output;
-
-			output.value = val["value"].asDouble();
-			output.n = val["n"].asUInt();
-			output.scriptPubKey.assm = val["scriptPubKey"]["asm"].asString();
-			output.scriptPubKey.hex = val["scriptPubKey"]["hex"].asString();
-			output.scriptPubKey.reqSigs = val["scriptPubKey"]["reqSigs"].asInt();
-
-			output.scriptPubKey.type = val["scriptPubKey"]["type"].asString();
-			for(ValueIterator it2 = val["scriptPubKey"]["addresses"].begin(); it2 != val["scriptPubKey"]["addresses"].end(); it2++){
-				output.scriptPubKey.addresses.push_back((*it2).asString());
-			}
-
-			ret.vout.push_back(output);
-		}
-		ret.blockhash = result["blockhash"].asString();
-		ret.confirmations = result["confirmations"].asUInt();
-		ret.time = result["time"].asUInt();
-		ret.blocktime = result["blocktime"].asUInt();
-	}
-
-	return ret;
-}
 /*
 decodescript_t RaptoreumAPI::decodescript(const std::string& hexString) {
 	string command = "decodescript";
