@@ -1,7 +1,7 @@
 /**
  * @file    raptoreumapi.cpp
- * @author  Krzysztof Okupski
- * @date    29.10.2014
+ * @author  Krzysztof Okupski / Jesús Sánchez / Laura Mejía
+ * @date    29.10.2014 / 09.10.2022
  * @version 1.0
  *
  * Implementation of a C++ wrapper for communication with
