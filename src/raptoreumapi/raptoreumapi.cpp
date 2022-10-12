@@ -116,23 +116,40 @@ double RaptoreumAPI::getaddressbalance(const string& account) {
 	params.append(account);
 	result = sendcommand(command, params);
 
-	return result["balance"].asDouble();
+	return result["balance"].asDouble()/100000000;
 }
 
-vector<transactioninfo_t> RaptoreumAPI::getaddresstxids(const string& account, int count, int from) {
+vector<string> RaptoreumAPI::getaddresstxidsTest(const string& address) {
 	string command = "getaddresstxids";
-	Value params, result;
+	Value params, result, addresses;
+	params.append(address);
+	result = sendcommand(command, params);
+	vector<string> aux;
+
+	for(unsigned i = 0; i < result.size(); ++i) {
+		aux.push_back(result[i].asString());
+	}
+
+	return aux;
+}
+
+vector<transactioninfo_t> RaptoreumAPI::getaddresstxids(const string& address, int count, int from) {
+	string command = "getaddresstxids";
+	Value params, result, addresses;
 	vector<transactioninfo_t> ret;
 
-	params.append(account);
-	params.append(count);
-	params.append(from);
-	result = sendcommand(command, params);
+	//string aux[1] = { account };
 
+	params.append(address);
+	//params.append(count);
+	//params.append(from);
+	result = sendcommand(command, params);
+	/*
 	for (ValueIterator it = result.begin(); it != result.end(); it++) {
 		Value val = (*it);
 		transactioninfo_t tmp;
-
+		tmp.txid = val["transactionid"].asString();
+		
 		tmp.account = val["account"].asString();
 		tmp.address = val["address"].asString();
 		tmp.category = val["category"].asString();
@@ -150,9 +167,10 @@ vector<transactioninfo_t> RaptoreumAPI::getaddresstxids(const string& account, i
 
 		tmp.time = val["time"].asInt();
 		tmp.timereceived = val["timereceived"].asInt();
-
+		
 		ret.push_back(tmp);
 	}
+	*/
 
 	return ret;
 }

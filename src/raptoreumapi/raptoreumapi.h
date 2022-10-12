@@ -78,7 +78,8 @@ public:
     //double getaddressbalance();
     double getaddressbalance(const std::string& account);
 
-    std::vector<transactioninfo_t> getaddresstxids(const std::string& account, int count = 10, int from = 0);
+    std::vector<std::string> getaddresstxidsTest(const std::string& address);
+    std::vector<transactioninfo_t> getaddresstxids(const std::string& address, int count = 10, int from = 0);
     /*
     double getunconfirmedbalance();
 
